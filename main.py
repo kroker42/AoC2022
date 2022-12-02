@@ -17,6 +17,7 @@ day_test_case = """class TestDay{day}}(unittest.TestCase):
     def test_task1(self):
         self.assertEqual(False, elftasks.day{day}())"""
 
+
 def generate_day(file, fn_def, day):
     f = open(file, 'a')
     f.write("\n\n")
@@ -24,10 +25,10 @@ def generate_day(file, fn_def, day):
     f.close()
 
 
-
 def run(day):
     run_time, task1, task2 = day()
     print(day.__name__ + ": %.6s s - " % run_time + str(task1) + " " + str(task2))
+
 
 def run_tests():
     suites = [unittest.defaultTestLoader.loadTestsFromName("test")]
