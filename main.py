@@ -13,7 +13,7 @@ day_fn = """def day{day}():
     return time.time() - start_time, task1, task2
     """
 
-day_test_case = """class TestDay{day}}(unittest.TestCase):
+day_test_case = """class TestDay{day}(unittest.TestCase):
     def test_task1(self):
         self.assertEqual(False, elftasks.day{day}())"""
 

@@ -23,5 +23,22 @@ class TestDay2(unittest.TestCase):
         self.assertEqual(1, elftasks.RPSGame.score_task2('B', 'X'))
         self.assertEqual(7, elftasks.RPSGame.score_task2('C', 'Z'))
 
+
+class TestDay3(unittest.TestCase):
+    data = """vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw"""
+    def test_backpack(self):
+        self.assertEqual('p', elftasks.backpack("vJrwpWtwJgWrhcsFMMfFFhFp"))
+
+    def test_priority(self):
+        self.assertEqual(1, elftasks.item_priority('a'))
+        self.assertEqual(2, elftasks.item_priority('b'))
+        self.assertEqual(27, elftasks.item_priority('A'))
+        self.assertEqual(52, elftasks.item_priority('Z'))
+
 if __name__ == '__main__':
     unittest.main()

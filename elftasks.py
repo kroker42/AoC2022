@@ -1,3 +1,4 @@
+import string
 import time
 
 
@@ -69,6 +70,37 @@ def day2():
 
     task1 = sum([RPSGame.score_task1(rnd[0], rnd[1]) for rnd in data])
     task2 = sum([RPSGame.score_task2(rnd[0], rnd[1]) for rnd in data])
+
+    return time.time() - start_time, task1, task2
+
+
+def backpack(b):
+    compA = set(b[:len(b)//2])
+    compB = set(b[len(b)//2:])
+    return next(iter(compA.intersection(compB)))
+
+def comp(backpacks):
+    isect = set(backpacks[0])
+    for b in backpacks[1:]:
+        isect = isect.intersection(b)
+    return next(iter(isect))
+
+def item_priority(i):
+    if i in string.ascii_lowercase:
+        return ord(i) - ord('a') + 1
+    else:
+        return ord(i) - ord('A') + 27
+
+
+def divide_chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+def day3():
+    data = [line.strip() for line in open('input3.txt')]
+    start_time = time.time()
+
+    task1 = sum([item_priority(i) for i in [backpack(b) for b in data]])
+    task2 = sum([item_priority(i) for i in [comp(g) for g in divide_chunks(data, 3)]])
 
     return time.time() - start_time, task1, task2
     
