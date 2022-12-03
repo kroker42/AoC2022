@@ -32,7 +32,7 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw"""
     def test_backpack(self):
-        self.assertEqual('p', elftasks.backpack("vJrwpWtwJgWrhcsFMMfFFhFp"))
+        self.assertEqual('p', elftasks.compartment_intersect("vJrwpWtwJgWrhcsFMMfFFhFp"))
 
     def test_priority(self):
         self.assertEqual(1, elftasks.item_priority('a'))

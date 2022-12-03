@@ -74,16 +74,21 @@ def day2():
     return time.time() - start_time, task1, task2
 
 
-def backpack(b):
-    compA = set(b[:len(b)//2])
-    compB = set(b[len(b)//2:])
-    return next(iter(compA.intersection(compB)))
-
-def comp(backpacks):
-    isect = set(backpacks[0])
-    for b in backpacks[1:]:
+def backpack_intersect(backpacks):
+    isect = set(next(backpacks))
+    for b in backpacks:
         isect = isect.intersection(b)
     return next(iter(isect))
+
+
+def divide_list(l, n):
+    for i in range(0, len(l), n):
+        yield iter(l[i:i + n])
+
+
+def compartment_intersect(b):
+    return backpack_intersect(divide_list(b, len(b)//2))
+
 
 def item_priority(i):
     if i in string.ascii_lowercase:
@@ -92,15 +97,12 @@ def item_priority(i):
         return ord(i) - ord('A') + 27
 
 
-def divide_chunks(l, n):
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
 def day3():
     data = [line.strip() for line in open('input3.txt')]
     start_time = time.time()
 
-    task1 = sum([item_priority(i) for i in [backpack(b) for b in data]])
-    task2 = sum([item_priority(i) for i in [comp(g) for g in divide_chunks(data, 3)]])
+    task1 = sum([item_priority(i) for i in [compartment_intersect(b) for b in data]])
+    task2 = sum([item_priority(i) for i in [backpack_intersect(g) for g in divide_list(data, 3)]])
 
     return time.time() - start_time, task1, task2
     
