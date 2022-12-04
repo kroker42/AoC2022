@@ -1,6 +1,8 @@
 import string
 import time
 
+import numpy as np
+
 
 def cals_per_elf(data):
     cals = [0]
@@ -116,8 +118,9 @@ def contains(a, b):
         return b[1] <= a[1]
     elif b[0] < a[0]:
         return a[1] <= b[1]
-    else:
-        return a[0] == b[0]
+
+    # a.start == b.start, so one must contain the other
+    return True
 
 
 def overlap(l):
