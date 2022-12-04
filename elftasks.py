@@ -106,3 +106,33 @@ def day3():
 
     return time.time() - start_time, task1, task2
     
+
+def contains_p(l):
+    return contains(l[0], l[1])
+
+
+def contains(a, b):
+    if a[0] < b[0]:
+        return b[1] <= a[1]
+    elif b[0] < a[0]:
+        return a[1] <= b[1]
+    else:
+        return a[0] == b[0]
+
+
+def overlap(l):
+    a = range(l[0][0], l[0][1]+1)
+    b = range(l[1][0], l[1][1]+1)
+    return b.start in a or b.stop-1 in a or a.start in b or a.stop-1 in b
+
+
+def day4():
+    data = [line.strip().split(',') for line in open('input4.txt')]
+    data = [[list(map(int, p.split('-'))) for p in pair] for pair in data]
+    start_time = time.time()
+
+    task1 = sum(map(contains_p, data))
+    task2 = sum(map(overlap, data))
+
+    return time.time() - start_time, task1, task2
+    

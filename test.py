@@ -40,5 +40,29 @@ CrZsJsPPZsGzwwsLwLmpwMDw"""
         self.assertEqual(27, elftasks.item_priority('A'))
         self.assertEqual(52, elftasks.item_priority('Z'))
 
+
+class TestDay4(unittest.TestCase):
+    def test_contains(self):
+        self.assertEqual(True, elftasks.contains([1, 7], [1, 4]))
+        self.assertEqual(True, elftasks.contains([1, 3], [1, 4]))
+        self.assertEqual(True, elftasks.contains([2, 7], [1, 8]))
+        self.assertEqual(True, elftasks.contains([2, 7], [1, 7]))
+        self.assertEqual(False, elftasks.contains([1, 7], [3, 8]))
+        self.assertEqual(False, elftasks.contains([1, 2], [2, 4]))
+        self.assertEqual(False, elftasks.contains([1, 2], [3, 4]))
+
+    def test_overlap(self):
+        self.assertEqual(True, elftasks.overlap([[1, 7], [1, 4]]))
+        self.assertEqual(True, elftasks.overlap([[1, 3], [1, 4]]))
+        self.assertEqual(True, elftasks.overlap([[2, 7], [1, 8]]))
+        self.assertEqual(True, elftasks.overlap([[2, 7], [1, 7]]))
+        self.assertEqual(True, elftasks.overlap([[1, 7], [3, 8]]))
+        self.assertEqual(True, elftasks.overlap([[0, 7], [1, 8]]))
+        self.assertEqual(True, elftasks.overlap([[1, 2], [2, 4]]))
+        self.assertEqual(True, elftasks.overlap([[2, 2], [2, 4]]))
+        self.assertEqual(True, elftasks.overlap([[4, 4], [2, 4]]))
+        self.assertEqual(False, elftasks.overlap([[1, 2], [3, 4]]))
+
+
 if __name__ == '__main__':
     unittest.main()
