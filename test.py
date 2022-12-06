@@ -1,5 +1,6 @@
 import unittest
 import elftasks
+from io import StringIO
 
 
 class TestDay1(unittest.TestCase):
@@ -66,3 +67,46 @@ class TestDay4(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestDay5(unittest.TestCase):
+    data = """[D]        
+[N] [C]    
+[Z] [M] [P]
+ 1   2   3 
+ 
+"""
+
+    moves = """move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2"""
+    def test_task1(self):
+        towers = (line for line in StringIO(self.data))
+        stacks = elftasks.parse_towers(towers)
+        self.assertEqual([['Z', 'N', 'D'], ['M', 'C'], ['P']], stacks)
+
+        moves = [line.strip().split(' ')[1::2] for line in StringIO(self.moves)]
+        moves = [list(map(int, x)) for x in moves]
+        elftasks.move_crate(stacks, moves[0])
+        self.assertEqual([['Z', 'N', 'D', 'C'], ['M'], ['P']], stacks)
+        elftasks.move_crate(stacks, moves[1])
+        self.assertEqual([['Z'], ['M'], ['P', 'C', 'D', 'N']], stacks)
+
+    def test_task2(self):
+        towers = (line for line in StringIO(self.data))
+        stacks = elftasks.parse_towers(towers)
+
+        moves = [line.strip().split(' ')[1::2] for line in StringIO(self.moves)]
+        moves = [list(map(int, x)) for x in moves]
+        elftasks.move_crate_2(stacks, moves[0])
+        self.assertEqual([['Z', 'N', 'D', 'C'], ['M'], ['P']], stacks)
+        elftasks.move_crate_2(stacks, moves[1])
+        self.assertEqual([['Z'], ['M'], ['P', 'N', 'D', 'C']], stacks)
+
+
+class TestDay6(unittest.TestCase):
+    def test_task1(self):
+        data = "bvwbjplbgvbhsrlpgdmjqwftvncz"
+        finder = elftasks.find_unique(data, 4)
+        self.assertEqual(5, next(finder))

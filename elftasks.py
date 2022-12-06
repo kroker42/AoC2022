@@ -1,9 +1,6 @@
 import string
 import time
 
-import numpy as np
-
-
 def cals_per_elf(data):
     cals = [0]
 
@@ -103,11 +100,11 @@ def day3():
     data = [line.strip() for line in open('input3.txt')]
     start_time = time.time()
 
-    task1 = sum([item_priority(i) for i in [compartment_intersect(b) for b in data]])
-    task2 = sum([item_priority(i) for i in [backpack_intersect(g) for g in divide_list(data, 3)]])
+    task1 = sum(map(item_priority, [compartment_intersect(b) for b in data]))
+    task2 = sum(map(item_priority, [backpack_intersect(g) for g in divide_list(data, 3)]))
 
     return time.time() - start_time, task1, task2
-    
+
 
 def contains_p(l):
     return contains(l[0], l[1])
@@ -136,6 +133,74 @@ def day4():
 
     task1 = sum(map(contains_p, data))
     task2 = sum(map(overlap, data))
+
+    return time.time() - start_time, task1, task2
+
+def parse_towers(data):
+    towers = []
+    line = next(data)
+
+    while not line[1].isdigit():
+        towers.append(line[1::4])
+        line = next(data)
+
+    stacks = [[] for i in range(len(towers[0]))]
+
+    for layer in reversed(towers):
+        for i in range(len(layer)):
+            if layer[i] != ' ':
+                stacks[i].append(layer[i])
+
+    return stacks
+
+def move_crate(stacks, move):
+    for i in range(move[0]):
+        stacks[move[2]-1].append(stacks[move[1]-1].pop())
+
+def move_crate_2(stacks, move):
+    stacks[move[2]-1] = stacks[move[2]-1] + stacks[move[1]-1][-move[0]:]
+    stacks[move[1]-1] = stacks[move[1]-1][0:-move[0]]
+
+def move_crates(move_fn, stacks, moves):
+    crates = [x.copy() for x in stacks]
+    for move in moves:
+        move_fn(crates, move)
+    top_crates = []
+    for s in crates:
+        top_crates.append(s.pop())
+
+    return ''.join(top_crates)
+
+
+def day5():
+    data = (line for line in open('input5.txt'))
+    start_time = time.time()
+
+    stacks = parse_towers(data)
+    next(data)  # empty line
+    moves = [line.strip().split(' ')[1::2] for line in data]
+    moves = [list(map(int, x)) for x in moves]
+
+    task1 = move_crates(move_crate, stacks, moves)
+    task2 = move_crates(move_crate_2, stacks, moves)
+
+    return time.time() - start_time, task1, task2
+
+
+def find_unique(sequence, n):
+    for i in range(len(sequence) - n):
+        if len(set(sequence[i:i+n])) == n:
+            yield i + n
+
+def day6():
+    data = open('input6.txt').readline().strip()
+    start_time = time.time()
+
+    finder = find_unique(data, 4)
+    task1 = next(finder)
+
+    finder = find_unique(data, 14)
+    task2 = next(finder)
 
     return time.time() - start_time, task1, task2
     
