@@ -110,3 +110,59 @@ class TestDay6(unittest.TestCase):
         data = "bvwbjplbgvbhsrlpgdmjqwftvncz"
         finder = elftasks.find_unique(data, 4)
         self.assertEqual(5, next(finder))
+
+
+class TestDay7(unittest.TestCase):
+    data = """$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k"""
+
+    def test_dir_size(self):
+        root = elftasks.Dir("root")
+        root.files.append(elftasks.File("", 234))
+        root.files.append(elftasks.File("", 45))
+        d = elftasks.Dir("d")
+        d.files.append(elftasks.File("", 37))
+        root.dirs["d"] = d
+        self.assertEqual(316, root.size())
+
+    def test_parse(self):
+        output = [line.strip().split(" ") for line in StringIO(self.data)]
+        self.assertEqual("/", elftasks.parse_output([output[0]]).name)
+
+        root = elftasks.parse_output(output[:7])
+        self.assertEqual(2, len(root.dirs))
+        self.assertEqual(True, 'a' in root.dirs)
+        self.assertEqual(True, 'd' in root.dirs)
+
+        root = elftasks.parse_output(output)
+        self.assertEqual(48381165, root.size())
+
+
+class TestDay7(unittest.TestCase):
+    def test_task1(self):
+        self.assertEqual(False, elftasks.day7())
+
+class TestDay7(unittest.TestCase):
+    def test_task1(self):
+        self.assertEqual(False, elftasks.day7())

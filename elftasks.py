@@ -1,5 +1,7 @@
 import string
 import time
+from collections import namedtuple
+
 
 def cals_per_elf(data):
     cals = [0]
@@ -25,7 +27,6 @@ def day1():
 
 
 class RPSGame:
-
     winning_moves = {'A': 'B', 'B': 'C', 'C': 'A'}
 
     @staticmethod
@@ -86,7 +87,7 @@ def divide_list(l, n):
 
 
 def compartment_intersect(b):
-    return backpack_intersect(divide_list(b, len(b)//2))
+    return backpack_intersect(divide_list(b, len(b) // 2))
 
 
 def item_priority(i):
@@ -121,9 +122,9 @@ def contains(a, b):
 
 
 def overlap(l):
-    a = range(l[0][0], l[0][1]+1)
-    b = range(l[1][0], l[1][1]+1)
-    return b.start in a or b.stop-1 in a or a.start in b or a.stop-1 in b
+    a = range(l[0][0], l[0][1] + 1)
+    b = range(l[1][0], l[1][1] + 1)
+    return b.start in a or b.stop - 1 in a or a.start in b or a.stop - 1 in b
 
 
 def day4():
@@ -135,6 +136,7 @@ def day4():
     task2 = sum(map(overlap, data))
 
     return time.time() - start_time, task1, task2
+
 
 def parse_towers(data):
     towers = []
@@ -153,13 +155,16 @@ def parse_towers(data):
 
     return stacks
 
+
 def move_crate(stacks, move):
     for i in range(move[0]):
-        stacks[move[2]-1].append(stacks[move[1]-1].pop())
+        stacks[move[2] - 1].append(stacks[move[1] - 1].pop())
+
 
 def move_crate_2(stacks, move):
-    stacks[move[2]-1] = stacks[move[2]-1] + stacks[move[1]-1][-move[0]:]
-    stacks[move[1]-1] = stacks[move[1]-1][0:-move[0]]
+    stacks[move[2] - 1] = stacks[move[2] - 1] + stacks[move[1] - 1][-move[0]:]
+    stacks[move[1] - 1] = stacks[move[1] - 1][0:-move[0]]
+
 
 def move_crates(move_fn, stacks, moves):
     crates = [x.copy() for x in stacks]
@@ -189,8 +194,9 @@ def day5():
 
 def find_unique(sequence, n):
     for i in range(len(sequence) - n):
-        if len(set(sequence[i:i+n])) == n:
+        if len(set(sequence[i:i + n])) == n:
             yield i + n
+
 
 def day6():
     data = open('input6.txt').readline().strip()
@@ -203,4 +209,75 @@ def day6():
     task2 = next(finder)
 
     return time.time() - start_time, task1, task2
-    
+
+
+File = namedtuple("File", "name size")
+
+
+class Dir:
+
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+        self.dirs = {}
+        self.files = []
+
+    def size(self):
+        return sum(map(Dir.size, self.dirs.values())) + sum([f.size for f in self.files])
+
+    def flatten(self):
+        dirs = list(self.dirs.values())
+
+        for d in self.dirs.values():
+            dirs += d.flatten()
+
+        return dirs
+
+def parse_ls(data, current_dir):
+    d = next(data)
+
+    while d[0] != "$":
+        if d[0] == "dir":
+            current_dir.dirs[d[1]] = Dir(d[1], current_dir)
+        else:
+            current_dir.files.append(File(d[1], int(d[0])))
+        d = next(data)
+
+    return d
+
+
+def parse_output(output):
+    root = Dir("/")
+    current_dir = root
+
+    data = iter(output)
+    try:
+        d = next(data)
+        while True:
+            if d[0] == '$':
+                if d[1] == "cd":
+                    if d[2] == ".." and current_dir != root:
+                        current_dir = current_dir.parent
+                    elif d[2] == "/":
+                        current_dir = root
+                    else:
+                        current_dir = current_dir.dirs[d[2]]
+                    d = next(data)
+                elif d[1] == "ls":
+                    d = parse_ls(data, current_dir)
+    except StopIteration:
+        return root
+
+
+def day7():
+    data = [line.strip().split(" ") for line in open('input7.txt')]
+    start_time = time.time()
+
+    root = parse_output(data)
+    dirs = root.flatten()
+    task1 = sum([s for s in [d.size() for d in dirs] if s <= 100000])
+
+    task2 = None
+
+    return time.time() - start_time, task1, task2
+

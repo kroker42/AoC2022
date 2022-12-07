@@ -4,7 +4,7 @@ import unittest
 
 
 day_fn = """def day{day}():
-    data = [line.split() for line in open('input{day}.txt')]
+    data = [line.strip().split() for line in open('input{day}.txt')]
     start_time = time.time()
 
     task1 = None
