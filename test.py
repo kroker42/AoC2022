@@ -157,12 +157,3 @@ $ ls
 
         root = elftasks.parse_output(output)
         self.assertEqual(48381165, root.size())
-
-
-class TestDay7(unittest.TestCase):
-    def test_task1(self):
-        self.assertEqual(False, elftasks.day7())
-
-class TestDay7(unittest.TestCase):
-    def test_task1(self):
-        self.assertEqual(False, elftasks.day7())

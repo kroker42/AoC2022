@@ -274,10 +274,14 @@ def day7():
     start_time = time.time()
 
     root = parse_output(data)
-    dirs = root.flatten()
-    task1 = sum([s for s in [d.size() for d in dirs] if s <= 100000])
+    dirs = [root] + root.flatten()
+    dir_sizes = [d.size() for d in dirs]
+    task1 = sum([s for s in dir_sizes if s <= 100000])
 
-    task2 = None
+    free_memory = 70000000 - root.size()
+    space_needed = 30000000 - free_memory
+    large_dirs = [d for d in dir_sizes if d >= space_needed]
+    task2 = min(large_dirs)
 
     return time.time() - start_time, task1, task2
 
