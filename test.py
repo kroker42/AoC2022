@@ -157,3 +157,21 @@ $ ls
 
         root = elftasks.parse_output(output)
         self.assertEqual(48381165, root.size())
+
+
+class TestDay8(unittest.TestCase):
+    data = """30373
+25512
+65332
+33549
+35390"""
+    def test_task1(self):
+        trees = [list(map(int, line.strip())) for line in StringIO(self.data)]
+        self.assertEqual(21, elftasks.count_visible_trees(trees))
+
+
+    def test_task2(self):
+        trees = [list(map(int, line.strip())) for line in StringIO(self.data)]
+        self.assertEqual(8, elftasks.visible_trees(trees, 3, 2))
+        self.assertEqual(8, elftasks.map_visible_trees(trees))
+

@@ -1,6 +1,8 @@
 import string
 import time
 from collections import namedtuple
+from itertools import accumulate
+from operator import mul
 
 
 def cals_per_elf(data):
@@ -291,3 +293,97 @@ def day7():
 
     return time.time() - start_time, task1, task2
 
+
+def visible_trees(trees, r, c):
+    height = trees[r][c]
+    visible_trees = [0] * 4
+
+    for tree in reversed(trees[r][:c]):
+        visible_trees[0] += 1
+        if tree >= height:
+            break
+
+    for tree in trees[r][c + 1:]:
+        visible_trees[1] += 1
+        if tree >= height:
+            break
+
+    for row in reversed(trees[:r]):
+        visible_trees[2] += 1
+        if row[c] >= height:
+            break
+
+    for row in trees[r + 1:]:
+        visible_trees[3] += 1
+        if row[c] >= height:
+            break
+
+    score = 1
+    for i in visible_trees:
+        score *= i
+    return score
+
+
+def map_visible_trees(trees):
+    cols = len(trees[0])
+    rows = len(trees)
+
+    visible = [[0] * cols for row in trees]
+    for r in range(rows):
+        for c in range(cols):
+            visible[r][c] = visible_trees(trees, r, c)
+
+    return max([max(row) for row in visible])
+
+
+def is_visible(trees, r, c):
+    height = trees[r][c]
+    visible = [1] * 4
+
+    for tree in trees[r][:c]:
+        if tree >= height:
+            visible[0] = 0
+
+    for tree in trees[r][c+1:]:
+        if tree >= height:
+            visible[1] = 0
+
+    for row in trees[:r]:
+        if row[c] >= height:
+            visible[2] = 0
+
+    for row in trees[r+1:]:
+        if row[c] >= height:
+            visible[3] = 0
+
+    return sum(visible) > 0
+
+
+def count_visible_trees(trees):
+    cols = len(trees[0])
+    rows = len(trees)
+
+    visible = [[0] * cols for row in trees]
+    visible[0] = [1] * cols
+    visible[-1] = [1] * cols
+    for row in visible:
+        row[0] = 1
+        row[-1] = 1
+
+    for r in range(rows):
+        for c in range(cols):
+            if not visible[r][c]:
+                visible[r][c] = is_visible(trees, r, c)
+
+    return sum([sum(row) for row in visible])
+
+
+def day8():
+    trees = [list(map(int, line.strip())) for line in open('input8.txt')]
+    start_time = time.time()
+
+    task1 = count_visible_trees(trees)
+    task2 = map_visible_trees(trees)
+
+    return time.time() - start_time, task1, task2
+    
