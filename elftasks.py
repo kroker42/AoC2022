@@ -246,6 +246,17 @@ def parse_ls(data, current_dir):
     return d
 
 
+def change_dir(new_dir_name, current_dir, root):
+    new_dir = None
+    if new_dir_name == ".." and current_dir != root:
+        new_dir = current_dir.parent
+    elif new_dir_name == "/":
+        new_dir = root
+    else:
+        new_dir = current_dir.dirs[new_dir_name]
+
+    return new_dir
+
 def parse_output(output):
     root = Dir("/")
     current_dir = root
@@ -256,12 +267,7 @@ def parse_output(output):
         while True:
             if d[0] == '$':
                 if d[1] == "cd":
-                    if d[2] == ".." and current_dir != root:
-                        current_dir = current_dir.parent
-                    elif d[2] == "/":
-                        current_dir = root
-                    else:
-                        current_dir = current_dir.dirs[d[2]]
+                    current_dir = change_dir(d[2], current_dir, root)
                     d = next(data)
                 elif d[1] == "ls":
                     d = parse_ls(data, current_dir)
