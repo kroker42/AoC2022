@@ -3,6 +3,10 @@ import time
 from collections import namedtuple
 from itertools import accumulate
 from operator import mul
+from operator import add
+from operator import sub
+from operator import abs
+from numpy import sign
 
 
 def cals_per_elf(data):
@@ -384,6 +388,60 @@ def day8():
 
     task1 = count_visible_trees(trees)
     task2 = map_visible_trees(trees)
+
+    return time.time() - start_time, task1, task2
+    
+
+def move_snake(snake, move):
+    move_map = {'R': [0, 1], 'L': [0, -1], 'U': [1, 0], 'D': [-1, 0]}
+    step = move_map[move[0]]
+
+    head = snake[0]
+    tail = snake[1]
+
+    visited = []
+
+    for i in range(move[1]):
+        head[0] += step[0]
+        head[1] += step[1]
+        steps = list(map(sub, head, tail))
+        dist = list(map(abs, steps))
+        if sum(dist) > 1:
+            if not(dist[0] == dist[1] and dist[1] == 1):
+                t_step = sign(steps)
+                tail[0] += t_step[0]
+                tail[1] += t_step[1]
+                visited.append(tuple(tail))
+
+    return visited
+
+def slither(moves):
+    head = [0,0]
+    tail = [0,0]
+
+    visited = set([(0, 0)])
+
+    for m in moves:
+        visited.update(move_snake([head, tail], m))
+
+    return len(visited)
+
+
+def slither_snake(moves):
+    snake = [[0, 0] for i in range(10)]
+    visited = set([(0, 0)])
+
+    for m in moves:
+        for i in range(8):
+            None
+
+def day9():
+    moves = [line.strip().split(" ") for line in open('input9.txt')]
+    moves = [(m[0], int(m[1])) for m in moves]
+    start_time = time.time()
+
+    task1 = slither(moves)
+    task2 = None
 
     return time.time() - start_time, task1, task2
     

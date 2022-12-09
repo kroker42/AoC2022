@@ -165,13 +165,40 @@ class TestDay8(unittest.TestCase):
 65332
 33549
 35390"""
+
     def test_task1(self):
         trees = [list(map(int, line.strip())) for line in StringIO(self.data)]
         self.assertEqual(21, elftasks.count_visible_trees(trees))
-
 
     def test_task2(self):
         trees = [list(map(int, line.strip())) for line in StringIO(self.data)]
         self.assertEqual(8, elftasks.visible_trees(trees, 3, 2))
         self.assertEqual(8, elftasks.map_visible_trees(trees))
 
+
+
+class TestDay9(unittest.TestCase):
+    data = """R 4
+U 4
+L 3
+D 1
+R 4
+D 1
+L 5
+R 2"""
+
+    def test_task1(self):
+        moves = [line.strip().split(" ") for line in StringIO(self.data)]
+        moves = [(m[0], int(m[1])) for m in moves]
+
+        self.assertEqual(1, elftasks.slither([['R', 1]]))
+        self.assertEqual(2, elftasks.slither([['R', 2]]))
+        self.assertEqual(2, elftasks.slither([['L', 2]]))
+        self.assertEqual(2, elftasks.slither([['U', 2]]))
+        self.assertEqual(2, elftasks.slither([['D', 2]]))
+
+        self.assertEqual(4, elftasks.slither([['R', 4]]))
+
+        self.assertEqual(1, elftasks.slither([['U', 1], ['R', 1]]))
+        self.assertEqual(3, elftasks.slither([['U', 2], ['R', 2]]))
+        self.assertEqual(13, elftasks.slither(moves))
