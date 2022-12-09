@@ -397,21 +397,23 @@ def move_snake(snake, move):
     step = move_map[move[0]]
 
     head = snake[0]
-    tail = snake[1]
+    tail = snake[-1]
 
     visited = []
 
     for i in range(move[1]):
         head[0] += step[0]
         head[1] += step[1]
-        steps = list(map(sub, head, tail))
-        dist = list(map(abs, steps))
-        if sum(dist) > 1:
-            if not(dist[0] == dist[1] and dist[1] == 1):
-                t_step = sign(steps)
-                tail[0] += t_step[0]
-                tail[1] += t_step[1]
-                visited.append(tuple(tail))
+
+        for seg in range(0, len(snake) - 1):
+            steps = list(map(sub, snake[seg], snake[seg + 1]))
+            dist = list(map(abs, steps))
+            if sum(dist) > 1:
+                if not(dist[0] == dist[1] and dist[1] == 1):
+                    t_step = sign(steps)
+                    snake[seg+1][0] += t_step[0]
+                    snake[seg+1][1] += t_step[1]
+                    visited.append(tuple(tail))
 
     return visited
 
@@ -432,8 +434,10 @@ def slither_snake(moves):
     visited = set([(0, 0)])
 
     for m in moves:
-        for i in range(8):
-            None
+        visited.update(move_snake(snake, m))
+
+    return len(visited)
+
 
 def day9():
     moves = [line.strip().split(" ") for line in open('input9.txt')]
@@ -441,7 +445,7 @@ def day9():
     start_time = time.time()
 
     task1 = slither(moves)
-    task2 = None
+    task2 = slither_snake(moves)
 
     return time.time() - start_time, task1, task2
     
