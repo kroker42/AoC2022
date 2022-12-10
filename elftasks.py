@@ -417,20 +417,8 @@ def move_snake(snake, move):
 
     return visited
 
-def slither(moves):
-    head = [0,0]
-    tail = [0,0]
 
-    visited = set([(0, 0)])
-
-    for m in moves:
-        visited.update(move_snake([head, tail], m))
-
-    return len(visited)
-
-
-def slither_snake(moves):
-    snake = [[0, 0] for i in range(10)]
+def slither_snake(snake, moves):
     visited = set([(0, 0)])
 
     for m in moves:
@@ -444,8 +432,33 @@ def day9():
     moves = [(m[0], int(m[1])) for m in moves]
     start_time = time.time()
 
-    task1 = slither(moves)
-    task2 = slither_snake(moves)
+    snake = [[0, 0] for i in range(2)]
+    task1 = slither_snake(snake, moves)
+
+    snake = [[0, 0] for i in range(10)]
+    task2 = slither_snake(snake, moves)
+
+    return time.time() - start_time, task1, task2
+    
+
+def cycle_x(ops):
+    values = [1]
+    for op in ops:
+        values.append(values[-1])
+        if op[0] == "addx":
+            values.append(values[-1] + int(op[1]))
+
+    return values
+
+def day10():
+    data = [line.strip().split(" ") for line in open('input10.txt')]
+    start_time = time.time()
+
+    values = cycle_x(data)
+    signals = [c * values[c-1] for c in [20, 60, 100, 140, 180, 220]]
+    task1 = sum(signals)
+
+    task2 = None
 
     return time.time() - start_time, task1, task2
     

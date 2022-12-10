@@ -187,18 +187,211 @@ D 1
 L 5
 R 2"""
 
+    def slither(self, moves, expected):
+        snake = [[0, 0], [0, 0]]
+        self.assertEqual(expected, elftasks.slither_snake(snake, moves))
+
+
     def test_task1(self):
         moves = [line.strip().split(" ") for line in StringIO(self.data)]
         moves = [(m[0], int(m[1])) for m in moves]
 
-        self.assertEqual(1, elftasks.slither([['R', 1]]))
-        self.assertEqual(2, elftasks.slither([['R', 2]]))
-        self.assertEqual(2, elftasks.slither([['L', 2]]))
-        self.assertEqual(2, elftasks.slither([['U', 2]]))
-        self.assertEqual(2, elftasks.slither([['D', 2]]))
+        self.assertEqual(13, elftasks.slither_snake([[0, 0], [0, 0]], moves))
 
-        self.assertEqual(4, elftasks.slither([['R', 4]]))
 
-        self.assertEqual(1, elftasks.slither([['U', 1], ['R', 1]]))
-        self.assertEqual(3, elftasks.slither([['U', 2], ['R', 2]]))
-        self.assertEqual(13, elftasks.slither(moves))
+class TestDay10(unittest.TestCase):
+    def parse(self, data):
+        return [line.strip().split(" ") for line in StringIO(data)]
+    def test_cycle_x(self):
+        data = """noop
+addx 3
+addx -5"""
+        self.assertEqual([1, 1, 1, 4, 4, -1], elftasks.cycle_x(self.parse(data)))
+
+        data = """addx 15
+addx -11
+addx 6
+addx -3
+addx 5
+addx -1
+addx -8
+addx 13
+addx 4
+noop
+addx -1"""
+        exp = [1, 1] + [x + 1 for x in [15, 15, 4, 4, 10, 10, 7, 7, 12, 12, 11, 11, 3, 3, 16, 16, 20, 20, 20, 19]]
+        values = elftasks.cycle_x(self.parse(data))
+        self.assertEqual(exp, values)
+        self.assertEqual(21, values[20])
+
+        data = """addx 1
+addx 5
+noop
+addx -1
+noop
+addx 3
+addx 29
+addx -1
+addx -21
+addx 5
+noop
+addx -20"""
+        values = elftasks.cycle_x(self.parse(data))
+        self.assertEqual([1, 1, 2, 2, 7, 7, 7, 6, 6, 6, 9, 9, 38, 38, 37, 37, 16, 16, 21, 21, 21, 1], values)
+        self.assertEqual(21, values[20])
+
+        signals = [c * values[c] for c in [2, 6, 10]]
+        self.assertEqual([4, 6 * 7, 10 * 9], signals)
+
+    def test_signal(self):
+        data = """addx 15
+addx -11
+addx 6
+addx -3
+addx 5
+addx -1
+addx -8
+addx 13
+addx 4
+noop
+addx -1
+addx 5
+addx -1
+addx 5
+addx -1
+addx 5
+addx -1
+addx 5
+addx -1
+addx -35
+addx 1
+addx 24
+addx -19
+addx 1
+addx 16
+addx -11
+noop
+noop
+addx 21
+addx -15
+noop
+noop
+addx -3
+addx 9
+addx 1
+addx -3
+addx 8
+addx 1
+addx 5
+noop
+noop
+noop
+noop
+noop
+addx -36
+noop
+addx 1
+addx 7
+noop
+noop
+noop
+addx 2
+addx 6
+noop
+noop
+noop
+noop
+noop
+addx 1
+noop
+noop
+addx 7
+addx 1
+noop
+addx -13
+addx 13
+addx 7
+noop
+addx 1
+addx -33
+noop
+noop
+noop
+addx 2
+noop
+noop
+noop
+addx 8
+noop
+addx -1
+addx 2
+addx 1
+noop
+addx 17
+addx -9
+addx 1
+addx 1
+addx -3
+addx 11
+noop
+noop
+addx 1
+noop
+addx 1
+noop
+noop
+addx -13
+addx -19
+addx 1
+addx 3
+addx 26
+addx -30
+addx 12
+addx -1
+addx 3
+addx 1
+noop
+noop
+noop
+addx -9
+addx 18
+addx 1
+addx 2
+noop
+noop
+addx 9
+noop
+noop
+noop
+addx -1
+addx 2
+addx -37
+addx 1
+addx 3
+noop
+addx 15
+addx -21
+addx 22
+addx -6
+addx 1
+noop
+addx 2
+addx 1
+noop
+addx -10
+noop
+noop
+addx 20
+addx 1
+addx 2
+addx 2
+addx -6
+addx -11
+noop
+noop
+noop"""
+        values = elftasks.cycle_x(self.parse(data))
+        signals = [c * values[c-1] for c in [20, 60, 100, 140, 180, 220]]
+        self.assertEqual([420, 1140, 1800, 2940, 2880, 3960], signals)
+
+
