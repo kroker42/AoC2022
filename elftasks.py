@@ -450,6 +450,23 @@ def cycle_x(ops):
 
     return values
 
+
+def render(values):
+    image = []
+    width = 40
+    rows = range(len(values) // width)
+
+    for r in rows:
+        image.append("")
+        row = r * width
+        for i in range(width):
+            if i in range(values[row + i] - 1, values[row + i] + 2):
+                image[-1] += '#'
+            else:
+                image[-1] += '.'
+    return image
+
+
 def day10():
     data = [line.strip().split(" ") for line in open('input10.txt')]
     start_time = time.time()
@@ -458,7 +475,10 @@ def day10():
     signals = [c * values[c-1] for c in [20, 60, 100, 140, 180, 220]]
     task1 = sum(signals)
 
-    task2 = None
+    for r in render(values):
+        print(r)
+
+    task2 = "EALGULPG"
 
     return time.time() - start_time, task1, task2
     

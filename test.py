@@ -243,8 +243,7 @@ addx -20"""
         signals = [c * values[c] for c in [2, 6, 10]]
         self.assertEqual([4, 6 * 7, 10 * 9], signals)
 
-    def test_signal(self):
-        data = """addx 15
+    data = """addx 15
 addx -11
 addx 6
 addx -3
@@ -390,8 +389,23 @@ addx -11
 noop
 noop
 noop"""
-        values = elftasks.cycle_x(self.parse(data))
+
+    def test_signal(self):
+        values = elftasks.cycle_x(self.parse(self.data))
         signals = [c * values[c-1] for c in [20, 60, 100, 140, 180, 220]]
         self.assertEqual([420, 1140, 1800, 2940, 2880, 3960], signals)
+
+    def test_task2(self):
+        exp = """##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######....."""
+        values = elftasks.cycle_x(self.parse(self.data))
+        image = elftasks.render(values)
+        self.assertEqual("##..##..##..##..##..##..##..##..##..##.." , image[0].strip())
+        self.assertEqual("#######.......#######.......#######....." , image[-1].strip())
+
 
 
