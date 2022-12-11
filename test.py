@@ -1,6 +1,10 @@
 import unittest
 import elftasks
 from io import StringIO
+from collections import deque
+from operator import add
+from operator import mul
+
 
 
 class TestDay1(unittest.TestCase):
@@ -408,4 +412,65 @@ noop"""
         self.assertEqual("#######.......#######.......#######....." , image[-1].strip())
 
 
+class TestDay11(unittest.TestCase):
+    data = """Monkey 0:
+  Starting items: 79, 98
+  Operation: new = old * 19
+  Test: divisible by 23
+    If true: throw to monkey 2
+    If false: throw to monkey 3
 
+Monkey 1:
+  Starting items: 54, 65, 75, 74
+  Operation: new = old + 6
+  Test: divisible by 19
+    If true: throw to monkey 2
+    If false: throw to monkey 0
+
+Monkey 2:
+  Starting items: 79, 60, 97
+  Operation: new = old * old
+  Test: divisible by 13
+    If true: throw to monkey 1
+    If false: throw to monkey 3
+
+Monkey 3:
+  Starting items: 74
+  Operation: new = old + 3
+  Test: divisible by 17
+    If true: throw to monkey 0
+    If false: throw to monkey 1"""
+
+    def test_monkey_equality(self):
+        exp = elftasks.Monkey(0, deque([79, 98]), (mul, 19), 23, 2, 3)
+        got = elftasks.monkey_parser([line for line in StringIO(self.data)][:6])[0]
+        self.assertEqual(exp.id, got.id)
+        self.assertEqual(exp.items, got.items)
+        self.assertEqual(exp.op, got.op)
+        self.assertEqual(exp.predicate, got.predicate)
+        self.assertEqual(exp.actions, got.actions)
+        self.assertEqual(exp, got)
+
+    def test_monkey_add_op(self):
+        got = elftasks.monkey_parser([line for line in StringIO(self.data)][14:20])[0]
+        self.assertEqual((mul, "old"), got.op)
+
+    def test_monkey_parser(self):
+        exp = [elftasks.Monkey(0, deque([79, 98]), (mul, 19), 23, 2, 3),
+               elftasks.Monkey(1, deque([54, 65, 75, 74]), (add, 6), 19, 2, 0),
+               elftasks.Monkey(2, deque([79, 60, 97]), (mul, "old"), 13, 1, 3),
+               elftasks.Monkey(3, deque([74]), (add, 3), 17, 0, 1)]
+        self.assertEqual(exp, elftasks.monkey_parser([line for line in StringIO(self.data)]))
+
+    def test_monkey_in_the_middle(self):
+        monkeys = elftasks.monkey_parser([line for line in StringIO(self.data)])
+        elftasks.play_monkey_in_the_middle(monkeys, lambda a: a // 3)
+        items = [m.items for m in monkeys]
+        self.assertEqual([deque([20, 23, 27, 26]), deque([2080, 25, 167, 207, 401, 1046]), deque(), deque()], items)
+
+    def test_inspection_count(self):
+        monkeys = elftasks.monkey_parser([line for line in StringIO(self.data)])
+        for i in range(20):
+            elftasks.play_monkey_in_the_middle(monkeys, lambda a: a // 3)
+        inspection_count = [m.inspection_count for m in monkeys]
+        self.assertEqual([101, 95, 7, 105], inspection_count)

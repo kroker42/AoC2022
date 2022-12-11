@@ -1,11 +1,16 @@
 import string
 import time
 from collections import namedtuple
-from itertools import accumulate
-from operator import mul
+from collections import deque
+
 from operator import add
+from operator import mul
 from operator import sub
 from operator import abs
+from operator import floordiv
+from operator import mod
+
+import numpy
 from numpy import sign
 
 
@@ -479,6 +484,100 @@ def day10():
         print(r)
 
     task2 = "EALGULPG"
+
+    return time.time() - start_time, task1, task2
+    
+class Monkey:
+    def __init__(self, id = 0, items = deque(), op = (add, 0), predicate = 1, monkey_true = 0, monkey_false = 0):
+        self.id = id
+        self.items = items
+        self.op = op
+        self.predicate = (mod, predicate)
+        self.actions = {True: monkey_true, False: monkey_false}
+        self.inspection_count = 0
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.id == other.id \
+                and self.items == other.items \
+                and self.op == other.op \
+                and self.predicate == other.predicate \
+                and self.actions == other.actions
+        else:
+            return False
+
+    def get_item(self):
+        self.inspection_count += 1
+        return self.items.popleft()
+
+    def add_op(self, op, val):
+        if op == '+':
+            self.op = (add, val)
+        elif op == '*':
+            self.op = (mul, val)
+        else:
+            raise ValueError
+
+    def add_predicate(self, val):
+        self.predicate = (mod, val)
+
+
+def play_monkey_in_the_middle(monkeys, calmer):
+    for monkey in monkeys:
+        for i in range(len(monkey.items)):
+            item = monkey.get_item()
+            item = monkey.op[0](item, item if monkey.op[1] == "old" else monkey.op[1])
+            item = calmer(item)
+            item_passed = monkey.predicate[0](item, monkey.predicate[1]) == 0
+            monkeys[monkey.actions[item_passed]].items.append(item)
+
+
+def monkey_parser(data):
+    defs = iter(data)
+    monkeys = []
+    try:
+        while True:
+            monkey_id = next(defs)
+            monkey_id = monkey_id.split(' ')
+            monkey_id = monkey_id[1].split(':')
+            monkeys.append(Monkey(id=int(monkey_id[0])))
+
+            items = next(defs)
+            items = items.split(':')[1]
+            monkeys[-1].items = deque([int(x) for x in items.split(',')])
+
+            op = next(defs).split(' ')
+            monkeys[-1].add_op(op[-2], int(op[-1]) if op[-1].strip() != "old" else "old")
+
+            monkeys[-1].add_predicate(int(next(defs).strip().split(' ')[-1]))
+
+            monkeys[-1].actions[True] = int(next(defs).split(' ')[-1])
+            monkeys[-1].actions[False] = int(next(defs).split(' ')[-1])
+            next(defs)
+    except StopIteration:
+        None
+
+    return monkeys
+
+
+def day11():
+    data = [line.strip() for line in open('input11.txt')]
+    start_time = time.time()
+
+    monkeys = monkey_parser([line for line in data])
+    for i in range(20):
+        play_monkey_in_the_middle(monkeys, lambda a: a // 3)
+    inspection_count = [m.inspection_count for m in monkeys]
+    inspection_count.sort()
+    task1 = inspection_count[-1] * inspection_count[-2]
+
+    monkeys = monkey_parser([line for line in data])
+    multipliers = numpy.prod([m.predicate[1] for m in monkeys])
+    for i in range(10000):
+        play_monkey_in_the_middle(monkeys, lambda a: a % multipliers)
+    inspection_count = [m.inspection_count for m in monkeys]
+    inspection_count.sort()
+    task2 = inspection_count[-1] * inspection_count[-2]
 
     return time.time() - start_time, task1, task2
     
