@@ -3,6 +3,10 @@ import time
 from collections import namedtuple
 from collections import deque
 
+from copy import deepcopy
+
+from functools import partial
+
 from operator import add
 from operator import mul
 from operator import sub
@@ -488,11 +492,11 @@ def day10():
     return time.time() - start_time, task1, task2
     
 class Monkey:
-    def __init__(self, id = 0, items = deque(), op = (add, 0), predicate = 1, monkey_true = 0, monkey_false = 0):
+    def __init__(self, id = 0, items = deque(), op = None, predicate = 1, monkey_true = 0, monkey_false = 0):
         self.id = id
         self.items = items
         self.op = op
-        self.predicate = (mod, predicate)
+        self.predicate = predicate
         self.actions = {True: monkey_true, False: monkey_false}
         self.inspection_count = 0
 
@@ -500,7 +504,7 @@ class Monkey:
         if isinstance(other, self.__class__):
             return self.id == other.id \
                 and self.items == other.items \
-                and self.op == other.op \
+                and self.op(17) == other.op(17) \
                 and self.predicate == other.predicate \
                 and self.actions == other.actions
         else:
@@ -510,25 +514,22 @@ class Monkey:
         self.inspection_count += 1
         return self.items.popleft()
 
+
     def add_op(self, op, val):
-        if op == '+':
-            self.op = (add, val)
-        elif op == '*':
-            self.op = (mul, val)
+        fn = {'+': add, '*': mul}[op]
+        if val == "old":
+            self.op = lambda x: fn(x, x)
         else:
-            raise ValueError
-
-    def add_predicate(self, val):
-        self.predicate = (mod, val)
+            self.op = lambda x: fn(x, val)
 
 
-def play_monkey_in_the_middle(monkeys, calmer):
+def play_monkey_in_the_middle(monkeys, calmer_fn):
     for monkey in monkeys:
         for i in range(len(monkey.items)):
             item = monkey.get_item()
-            item = monkey.op[0](item, item if monkey.op[1] == "old" else monkey.op[1])
-            item = calmer(item)
-            item_passed = monkey.predicate[0](item, monkey.predicate[1]) == 0
+            item = monkey.op(item)
+            item = calmer_fn(item)
+            item_passed = item % monkey.predicate == 0
             monkeys[monkey.actions[item_passed]].items.append(item)
 
 
@@ -548,8 +549,7 @@ def monkey_parser(data):
 
             op = next(defs).split(' ')
             monkeys[-1].add_op(op[-2], int(op[-1]) if op[-1].strip() != "old" else "old")
-
-            monkeys[-1].add_predicate(int(next(defs).strip().split(' ')[-1]))
+            monkeys[-1].predicate = int(next(defs).strip().split(' ')[-1])
 
             monkeys[-1].actions[True] = int(next(defs).split(' ')[-1])
             monkeys[-1].actions[False] = int(next(defs).split(' ')[-1])
@@ -560,24 +560,22 @@ def monkey_parser(data):
     return monkeys
 
 
+def get_high_prio_monkey_inspections(monkeys, no_rounds, calmer_fn):
+    for i in range(no_rounds):
+        play_monkey_in_the_middle(monkeys, calmer_fn)
+    inspection_count = [m.inspection_count for m in monkeys]
+    inspection_count.sort()
+    return inspection_count[-1] * inspection_count[-2]
+
+
 def day11():
     data = [line.strip() for line in open('input11.txt')]
     start_time = time.time()
 
     monkeys = monkey_parser([line for line in data])
-    for i in range(20):
-        play_monkey_in_the_middle(monkeys, lambda a: a // 3)
-    inspection_count = [m.inspection_count for m in monkeys]
-    inspection_count.sort()
-    task1 = inspection_count[-1] * inspection_count[-2]
+    task1 = get_high_prio_monkey_inspections(deepcopy(monkeys), 20, lambda a: a // 3)
 
-    monkeys = monkey_parser([line for line in data])
-    multipliers = numpy.prod([m.predicate[1] for m in monkeys])
-    for i in range(10000):
-        play_monkey_in_the_middle(monkeys, lambda a: a % multipliers)
-    inspection_count = [m.inspection_count for m in monkeys]
-    inspection_count.sort()
-    task2 = inspection_count[-1] * inspection_count[-2]
+    multipliers = numpy.prod([m.predicate for m in monkeys])
+    task2 = get_high_prio_monkey_inspections(deepcopy(monkeys), 10000, lambda a: a % multipliers)
 
     return time.time() - start_time, task1, task2
-    

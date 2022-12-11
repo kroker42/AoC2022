@@ -1,5 +1,6 @@
 import unittest
 import elftasks
+import numpy
 from io import StringIO
 from collections import deque
 from operator import add
@@ -442,24 +443,24 @@ Monkey 3:
     If false: throw to monkey 1"""
 
     def test_monkey_equality(self):
-        exp = elftasks.Monkey(0, deque([79, 98]), (mul, 19), 23, 2, 3)
+        exp = elftasks.Monkey(0, deque([79, 98]), lambda x: x * 19, 23, 2, 3)
         got = elftasks.monkey_parser([line for line in StringIO(self.data)][:6])[0]
         self.assertEqual(exp.id, got.id)
         self.assertEqual(exp.items, got.items)
-        self.assertEqual(exp.op, got.op)
+        self.assertEqual(exp.op(7), got.op(7))
         self.assertEqual(exp.predicate, got.predicate)
         self.assertEqual(exp.actions, got.actions)
         self.assertEqual(exp, got)
 
     def test_monkey_add_op(self):
         got = elftasks.monkey_parser([line for line in StringIO(self.data)][14:20])[0]
-        self.assertEqual((mul, "old"), got.op)
+        self.assertEqual(9, got.op(3))
 
     def test_monkey_parser(self):
-        exp = [elftasks.Monkey(0, deque([79, 98]), (mul, 19), 23, 2, 3),
-               elftasks.Monkey(1, deque([54, 65, 75, 74]), (add, 6), 19, 2, 0),
-               elftasks.Monkey(2, deque([79, 60, 97]), (mul, "old"), 13, 1, 3),
-               elftasks.Monkey(3, deque([74]), (add, 3), 17, 0, 1)]
+        exp = [elftasks.Monkey(0, deque([79, 98]), lambda a: a * 19, 23, 2, 3),
+               elftasks.Monkey(1, deque([54, 65, 75, 74]), lambda a: a + 6, 19, 2, 0),
+               elftasks.Monkey(2, deque([79, 60, 97]), lambda a: a * a, 13, 1, 3),
+               elftasks.Monkey(3, deque([74]), lambda a: a + 3, 17, 0, 1)]
         self.assertEqual(exp, elftasks.monkey_parser([line for line in StringIO(self.data)]))
 
     def test_monkey_in_the_middle(self):
@@ -474,3 +475,12 @@ Monkey 3:
             elftasks.play_monkey_in_the_middle(monkeys, lambda a: a // 3)
         inspection_count = [m.inspection_count for m in monkeys]
         self.assertEqual([101, 95, 7, 105], inspection_count)
+
+    def test_monkey_in_the_middle_calmer_fn(self):
+        monkeys = elftasks.monkey_parser([line for line in StringIO(self.data)])
+        multipliers = numpy.prod([m.predicate for m in monkeys])
+        for i in range(20):
+            elftasks.play_monkey_in_the_middle(monkeys, lambda a: a % multipliers)
+        inspection_count = [m.inspection_count for m in monkeys]
+        self.assertEqual([99, 97, 8, 103], inspection_count)
+
