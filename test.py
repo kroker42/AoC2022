@@ -484,3 +484,43 @@ Monkey 3:
         inspection_count = [m.inspection_count for m in monkeys]
         self.assertEqual([99, 97, 8, 103], inspection_count)
 
+
+
+class TestDay12(unittest.TestCase):
+    data = """Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+
+    def test_parse_heightmap(self):
+        exp = elftasks.Heightmap([[0, 0, 1, 16, 15, 14, 13, 12], [0,1,2,17,24,23,23,11], [0,2,2,18,25,25,23,10],\
+                                  [0,2,2,19,20,21,22,9], [0,1,3,4,5,6,7,8]], (0, 0), (2, 5))
+        heightmap = elftasks.parse_heightmap([line.strip() for line in StringIO(self.data)])
+        self.assertEqual(exp, heightmap)
+
+    def test_get_neighbours(self):
+        heightmap = elftasks.parse_heightmap([line.strip() for line in StringIO(self.data)])
+        self.assertEqual([((0, 1), 0), ((1, 0), 0)], heightmap.get_neighbours((0,0)))
+        self.assertEqual([((1, 2), 2), ((1, 0), 0), ((2, 1), 2), ((0, 1), 0)], heightmap.get_neighbours((1,1)))
+
+    def test_distance(self):
+        self.assertEqual(1, elftasks.distance((0, 0), (1, 0)))
+        self.assertEqual(1, elftasks.distance((0, 0), (0, 1)))
+        self.assertEqual(1, elftasks.distance((0, 2), (0, 1)))
+        self.assertEqual(2, elftasks.distance((2, 0), (0, 0)))
+        self.assertEqual(5, elftasks.distance((2, 3), (0, 0)))
+
+    def test_create_path(self):
+        heightmap = elftasks.parse_heightmap([line.strip() for line in StringIO(self.data)])
+        paths = elftasks.create_paths(elftasks.Path(heightmap.stop, heightmap.get(heightmap.stop)), heightmap)
+        paths = elftasks.create_paths(paths[0], heightmap)
+        self.assertEqual(1, len(paths))
+        self.assertEqual({(2, 4), (2, 5), (1, 4)}, paths[0].visited)
+
+    def test_find_path(self):
+        heightmap = elftasks.parse_heightmap([line.strip() for line in StringIO(self.data)])
+        paths = elftasks.find_path(heightmap)
+        visited = [p.visited for p in paths]
+        self.assertEqual(32, min([len(v) for v in visited]))
+

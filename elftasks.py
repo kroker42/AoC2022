@@ -579,3 +579,134 @@ def day11():
     task2 = get_high_prio_monkey_inspections(deepcopy(monkeys), 10000, lambda a: a % multipliers)
 
     return time.time() - start_time, task1, task2
+
+
+def elevation(i):
+    if i in string.ascii_lowercase:
+        return ord(i) - ord('a')
+    else:
+        return 0 if i == 'S' else elevation('z')
+
+
+def distance(pos1, pos2):
+    x_dist = abs(pos1[0] - pos2[0])
+    y_dist = abs(pos1[1] - pos2[1])
+    return x_dist + y_dist
+
+
+class Path:
+    def __init__(self, position, elevation, visited = set()):
+        self.position = position
+        self.elevation = elevation
+        self.visited = visited.copy()
+        self.visited.add(position)
+
+    def add(self, position, elevation):
+        if distance(position, self.position) == 1 \
+                and self.elevation - elevation <= 1 \
+                and position not in self.visited:
+            return Path(position, elevation, self.visited)
+
+        return None
+
+class Heightmap:
+    def __init__(self, heightmap, start, stop):
+        self.heightmap = heightmap
+        self.rows = len(heightmap)
+        self.cols = len(heightmap[0])
+        self.start = start
+        self.stop = stop
+        self.visited = set()
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.heightmap == other.heightmap \
+                and self.start == other.start \
+                and self.stop == other.stop
+
+    def get(self, pos):
+        return self.heightmap[pos[0]][pos[1]]
+
+    def get_neighbours(self, pos):
+        steps = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+        neighbours = []
+        for step in steps:
+            n = (pos[0] + step[0], pos[1] + step[1])
+            if n[0] >= 0 and n[0] < self.rows and n[1] >= 0 and n[1] < self.cols:
+                neighbours.append((n, self.get(n)))
+        return neighbours
+
+
+def create_paths(path, heightmap):
+    paths = []
+    for position, elevation in heightmap.get_neighbours(path.position):
+        if position not in heightmap.visited:
+            p = path.add(position, elevation)
+            if p is not None:
+                paths.append(p)
+                heightmap.visited.add(position)
+
+    return paths
+
+
+def find_path(heightmap):
+    root = Path(heightmap.stop, heightmap.get(heightmap.stop))
+    heightmap.visited.add(heightmap.stop)
+    paths = [root]
+    result = []
+    while len(paths) > 0:
+        new_paths = []
+        for p in paths:
+            if p.position == heightmap.start:
+                result.append(p)
+            else:
+                new_paths = new_paths + create_paths(p, heightmap)
+        paths = new_paths
+
+    return result
+
+def find_path_2(heightmap):
+    root = Path(heightmap.stop, heightmap.get(heightmap.stop))
+    heightmap.visited.add(heightmap.stop)
+    paths = [root]
+    result = []
+    while len(paths) > 0:
+        new_paths = []
+        for p in paths:
+            if p.elevation == 0:
+                result.append(p)
+            else:
+                new_paths = new_paths + create_paths(p, heightmap)
+        paths = new_paths
+
+    return result
+
+
+def parse_heightmap(data):
+    for r in range(len(data)):
+        for c in range(len(data[r])):
+            if data[r][c] == 'S':
+                start = (r, c)
+            elif data[r][c] == 'E':
+                stop = (r, c)
+
+    heightmap = []
+    for row in data:
+        heightmap.append([elevation(i) for i in row])
+
+    return Heightmap(heightmap, start, stop)
+
+def day12():
+    data = [line.strip() for line in open('input12.txt')]
+    start_time = time.time()
+
+    heightmap = parse_heightmap(data)
+    paths = find_path(heightmap)
+    task1 = min([len(v) for v in [p.visited for p in paths]]) - 1
+
+    heightmap = parse_heightmap(data)
+    paths = find_path_2(heightmap)
+    task2 = min([len(v) for v in [p.visited for p in paths]]) - 1
+
+    return time.time() - start_time, task1, task2
+    
