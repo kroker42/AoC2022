@@ -39,9 +39,13 @@ def run_tests():
 if __name__ == '__main__':
     run_tests()
 
-    day = str(date.today().day)
-    try:
-        run(eval("elftasks.day" + day))
-    except AttributeError:
-        generate_day("elftasks.py", day_fn, day)
-        generate_day("test.py", day_test_case, day)
+    for i in range(1, 13):
+        run(eval("elftasks.day" + str(i)))
+
+    # day = str(date.today().day)
+    # try:
+    #     run(eval("elftasks.day" + day))
+    # except AttributeError:
+    #     generate_day("elftasks.py", day_fn, day)
+    #     generate_day("test.py", day_test_case, day)
+    #     None

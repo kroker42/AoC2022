@@ -3,8 +3,8 @@ import elftasks
 import numpy
 from io import StringIO
 from collections import deque
-from operator import add
-from operator import mul
+from copy import deepcopy
+
 
 
 
@@ -523,4 +523,6 @@ abdefghi"""
         paths = elftasks.find_path(heightmap)
         visited = [p.visited for p in paths]
         self.assertEqual(32, min([len(v) for v in visited]))
+
+
 
